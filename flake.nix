@@ -20,9 +20,14 @@
           ignoreDataOutdated = true;
         };
 
-        python-with-packages = pkgs.python3.withPackages (p: with p; [
-          beautifulsoup4
-        ]);
+        python-shell = mach-nix.lib."${system}".mkPython {
+          requirements = ''
+            numpy
+            matplotlib
+            beautifulsoup4
+          '';
+          ignoreDataOutdated = true;
+        };
 
       in
       {
@@ -34,16 +39,30 @@
           type = "app";
           program = "${self.packages.${system}.extract}/bin/extract";
         };
+        apps.analyse = {
+          type = "app";
+          program = "${self.packages.${system}.analyse}/bin/analyse";
+        };
+
+        packages.analyse = pkgs.stdenv.mkDerivation {
+          name = "analyse";
+          buildInputs = [
+            python-shell
+          ];
+
+          unpackPhase = ":";
+          installPhase = "install -m 755 -D ${./analyse.py} $out/bin/analyse";
+        };
 
         packages.extract = pkgs.writeShellScriptBin "extract" ''
           set -euo pipefail
 
           rm -f res.db
-          ${git-history}/bin/git-history file res.db ./times.json
+          ${git-history}/bin/git-history file res.db ./times.json --id location
         '';
 
         packages.parser = pkgs.writeScriptBin "parser" ''
-          #!${python-with-packages}/bin/python
+          #!${python-shell}/bin/python
 
           import argparse
           import json
@@ -90,9 +109,9 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = [
+            python-shell
             pkgs.sqlite
             git-history
-            python-with-packages
           ];
         };
       });
