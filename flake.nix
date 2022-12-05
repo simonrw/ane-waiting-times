@@ -57,7 +57,7 @@
           URL="https://www.uhcw.nhs.uk/patients-and-visitors/live-waiting-times/"
 
           # curl the HTML of the page
-          # ${pkgs.curl}/bin/curl -Lso page.html "$URL"
+          ${pkgs.curl}/bin/curl -Lso page.html "$URL"
 
           ${self.packages.${system}.parser}/bin/parser page.html -o times.json
         '';
