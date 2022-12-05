@@ -30,6 +30,17 @@
           type = "app";
           program = "${self.packages.${system}.default}/bin/scrape";
         };
+        apps.extract = {
+          type = "app";
+          program = "${self.packages.${system}.extract}/bin/extract";
+        };
+
+        packages.extract = pkgs.writeShellScriptBin "extract" ''
+          set -euo pipefail
+
+          rm -f res.db
+          ${git-history}/bin/git-history file res.db ./times.json
+        '';
 
         packages.parser = pkgs.writeScriptBin "parser" ''
           #!${python-with-packages}/bin/python
