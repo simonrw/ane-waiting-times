@@ -79,6 +79,7 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = [
+            pkgs.sqlite
             git-history
             python-with-packages
           ];
