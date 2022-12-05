@@ -2,17 +2,28 @@
   inputs = {
     utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    mach-nix.url = "github:DavHau/mach-nix";
+    mach-nix.inputs.nixpkgs.follows = "nixpkgs";
+    mach-nix.inputs.flake-utils.follows = "utils";
   };
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, mach-nix, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = (import nixpkgs) {
           inherit system;
         };
 
+        git-history = mach-nix.lib."${system}".mkPython {
+          requirements = ''
+            git-history
+          '';
+          ignoreDataOutdated = true;
+        };
+
         python-with-packages = pkgs.python3.withPackages (p: with p; [
           beautifulsoup4
         ]);
+
       in
       {
         apps.default = {
@@ -39,12 +50,15 @@
           soup = BeautifulSoup(html, "html.parser")
 
           items = soup.select(".live_waiting_time_item_content")
-          results = {}
+          results = []
           for item in items:
               key = item.select_one(".live_waiting_time_item_hospital_name").text
               for child in item.select("div"):
                   if "WAIT TIME" in child.text:
-                      results[key] = child.text
+                      results.append({
+                        "location": key,
+                        "wait_time": child.text,
+                      })
 
           with open(args.output, "w") as outfile:
               json.dump(results, outfile)
@@ -62,5 +76,12 @@
           ${self.packages.${system}.parser}/bin/parser page.html -o times.json
         '';
         packages.default = self.packages.${system}.scrape;
+
+        devShells.default = pkgs.mkShell {
+          buildInputs = [
+            git-history
+            python-with-packages
+          ];
+        };
       });
 }
