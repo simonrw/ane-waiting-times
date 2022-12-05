@@ -20,7 +20,36 @@
           program = "${self.packages.${system}.default}/bin/scrape";
         };
 
-        packages.default = pkgs.writeShellScriptBin "scrape" ''
+        packages.parser = pkgs.writeScriptBin "parser" ''
+          #!${python-with-packages}/bin/python
+
+          import argparse
+          import json
+
+          from bs4 import BeautifulSoup
+
+          parser = argparse.ArgumentParser()
+          parser.add_argument("html")
+          parser.add_argument("-o", "--output", required=True)
+          args = parser.parse_args()
+
+          with open(args.html) as infile:
+              html = infile.read()
+
+          soup = BeautifulSoup(html, "html.parser")
+
+          items = soup.select(".live_waiting_time_item_content")
+          results = {}
+          for item in items:
+              key = item.select_one(".live_waiting_time_item_hospital_name").text
+              for child in item.select("div"):
+                  if "WAIT TIME" in child.text:
+                      results[key] = child.text
+
+          with open(args.output, "w") as outfile:
+              json.dump(results, outfile)
+        '';
+        packages.scrape = pkgs.writeShellScriptBin "scrape" ''
           set -euo pipefail
 
           set -x
@@ -28,7 +57,10 @@
           URL="https://www.uhcw.nhs.uk/patients-and-visitors/live-waiting-times/"
 
           # curl the HTML of the page
-          ${pkgs.curl}/bin/curl -Lo page.html "$URL"
+          # ${pkgs.curl}/bin/curl -Lso page.html "$URL"
+
+          ${self.packages.${system}.parser}/bin/parser page.html -o times.json
         '';
+        packages.default = self.packages.${system}.scrape;
       });
 }
