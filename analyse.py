@@ -59,10 +59,11 @@ for location, entries in per_location.items():
     print(f"{location}:")
     for entry in entries:
         date, num_hours, more_or_less = entry
-        match more_or_less:
-            case MoreOrLess.More:
-                print(f"\t{date}: more than {num_hours} hours")
-            case MoreOrLess.Less:
-                print(f"\t{date}: less than {num_hours} hours")
+        if more_or_less == MoreOrLess.More:
+            print(f"\t{date}: more than {num_hours} hours")
+        elif more_or_less == MoreOrLess.Less:
+            print(f"\t{date}: less than {num_hours} hours")
+        else:
+            raise NotImplementedError
 
     print()
