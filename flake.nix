@@ -40,15 +40,17 @@
           program = "${self.packages.${system}.analyse}/bin/analyse";
         };
 
-        packages.analyse = pkgs.stdenv.mkDerivation {
-          name = "analyse";
-          buildInputs = [
-            python-shell
-          ];
+        packages.analyse =
+          let
+            tmp-script = pkgs.writeTextFile {
+              name = "analyse";
+              text = (builtins.readFile ./analyse.py);
+            };
+          in
+          pkgs.writeScriptBin "analyse" ''
+            ${python-shell}/bin/python ${tmp-script}
+          '';
 
-          unpackPhase = ":";
-          installPhase = "install -m 755 -D ${./analyse.py} $out/bin/analyse";
-        };
 
         packages.extract = pkgs.writeShellScriptBin "extract" ''
           set -euo pipefail
