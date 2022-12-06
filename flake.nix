@@ -3,8 +3,6 @@
     utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     mach-nix.url = "github:DavHau/mach-nix";
-    mach-nix.inputs.nixpkgs.follows = "nixpkgs";
-    mach-nix.inputs.flake-utils.follows = "utils";
   };
   outputs = { self, nixpkgs, flake-utils, mach-nix, ... }:
     flake-utils.lib.eachDefaultSystem (system:
@@ -17,7 +15,6 @@
           requirements = ''
             git-history
           '';
-          ignoreDataOutdated = true;
         };
 
         python-shell = mach-nix.lib."${system}".mkPython {
@@ -26,7 +23,6 @@
             matplotlib
             beautifulsoup4
           '';
-          ignoreDataOutdated = true;
         };
 
       in
