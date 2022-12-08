@@ -4,7 +4,14 @@ import enum
 import sqlite3
 import numpy as np
 from collections import defaultdict
+from pathlib import Path
 from typing import Tuple
+import dateutil
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 import re
 
 TIME_RE = re.compile(
@@ -30,6 +37,27 @@ def parse_time(raw_time: str) -> Tuple[int, MoreOrLess]:
     else:
         raise ValueError
     return (int(num_hours), more_or_less)
+
+
+def sanitise_location_name(name):
+    return name.lower().replace(" ", "_").replace("'", "")
+
+
+def render_location_graph(location_name, entries, output_dir):
+    fig, axis = plt.subplots()
+
+    x, y = [], []
+    for entry in entries:
+        date, num_hours, more_or_less = entry
+        dt = dateutil.parser.parse(date)
+        x.append(dt)
+        y.append(num_hours)
+
+    axis.step(x, y)
+
+    sanitised_location_name = sanitise_location_name(location_name)
+    output_filename = str(output_dir / f"{sanitised_location_name}.png")
+    fig.savefig(output_filename)
 
 
 def dict_factory(cursor, row):
@@ -59,6 +87,9 @@ for row in rows:
     num_hours, more_or_less = parse_time(row["wait_time"])
     per_location[row["location"]].append((row["date"], num_hours, more_or_less))
 
+output_dir = Path.cwd() / "plots"
+output_dir.mkdir(exist_ok=True)
+
 for location, entries in per_location.items():
     print(f"{location}:")
     for entry in entries:
@@ -69,5 +100,7 @@ for location, entries in per_location.items():
             print(f"\t{date}: less than {num_hours} hours")
         else:
             raise NotImplementedError
+
+    render_location_graph(location, entries, output_dir)
 
     print()
