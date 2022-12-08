@@ -110,6 +110,7 @@
             python-shell
             pkgs.sqlite
             git-history
+            pkgs.python3Packages.black
           ];
         };
       });

@@ -7,12 +7,15 @@ from collections import defaultdict
 from typing import Tuple
 import re
 
-TIME_RE = re.compile(r"WAIT TIME (?P<more_or_less>more|less) than (?P<num_hours>\d+) hour")
+TIME_RE = re.compile(
+    r"WAIT TIME (?P<more_or_less>more|less) than (?P<num_hours>\d+) hour"
+)
 
 
 class MoreOrLess(enum.Enum):
     More = enum.auto()
     Less = enum.auto()
+
 
 def parse_time(raw_time: str) -> Tuple[int, MoreOrLess]:
     match = TIME_RE.search(raw_time)
@@ -34,6 +37,7 @@ def dict_factory(cursor, row):
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
+
 
 with sqlite3.connect("res.db") as conn:
     conn.row_factory = dict_factory
