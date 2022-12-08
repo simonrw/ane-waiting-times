@@ -22,7 +22,6 @@
             numpy
             matplotlib
             beautifulsoup4
-            pudb
             python-dateutil
           '';
         };
