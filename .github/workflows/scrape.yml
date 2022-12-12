@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Check out the source
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Install nix
         uses: cachix/install-nix-action@v18
       - name: fetch the latest data
