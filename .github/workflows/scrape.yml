@@ -26,6 +26,8 @@ jobs:
           git push
       - name: Extract the changes
         run: nix run .#extract
+      - name: Print how many commits have been extracted
+        run: nix develop -c sqlite3 ./res.db 'select count(*) from commits'
       - name: Render the graphs
         run: nix run .#analyse
       - name: Commit the graphs if changed
