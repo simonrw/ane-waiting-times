@@ -23,6 +23,8 @@
             matplotlib
             beautifulsoup4
             python-dateutil
+            data-science-types
+            types-python-dateutil
           '';
         };
 

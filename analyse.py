@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
+import numpy as np
 import enum
 import sqlite3
-import numpy as np
 from collections import defaultdict
 from pathlib import Path
-from typing import Tuple
-import dateutil
+from typing import Tuple, Protocol, cast
+import dateutil.parser
 import matplotlib
 
 matplotlib.use("Agg")
@@ -46,17 +46,39 @@ def sanitise_location_name(name):
 def render_location_graph(location_name, entries, output_dir):
     fig, axis = plt.subplots()
 
-    x, y = [], []
-    for entry in entries:
-        date, num_hours, more_or_less = entry
-        dt = dateutil.parser.parse(date)
-        x.append(dt)
-        y.append(num_hours)
+    y_data = defaultdict(list)
 
-    axis.step(x, y)
+    for entry in entries:
+        date, num_hours, _ = entry
+        dt = dateutil.parser.parse(date)
+        hour = dt.hour
+        y_data[hour].append(num_hours)
+
+    avs = []
+    stdevs = []
+    for i in range(24):
+        values = y_data.get(i)
+        if values is None:
+            if i == 0:
+                # TODO
+                avs.append(0)
+                stdevs.append(0)
+            else:
+                avs.append(avs[i - 1])
+                stdevs.append(stdevs[i - 1])
+            continue
+
+        mean_value = np.average(values)
+        stdev_value = np.std(values)
+        avs.append(mean_value)
+        stdevs.append(stdev_value)
+
+    axis.bar(x=np.arange(24), height=avs)
 
     sanitised_location_name = sanitise_location_name(location_name)
     output_filename = str(output_dir / f"{sanitised_location_name}.png")
+    axis.set(xlabel="Hour", ylabel="Average wait time [hours]", title=location_name)
+    fig.tight_layout()
     fig.savefig(output_filename)
 
 
