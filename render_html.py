@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
+from pathlib import Path
 import jinja2
 import glob
+
+template_path = Path(__file__).parent / "templates"
+assert template_path.is_dir()
 
 plots = glob.iglob("plots/*.png")
 urls = (f"/{plot}" for plot in plots)

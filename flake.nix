@@ -45,7 +45,7 @@
         };
         apps.render = {
           type = "app";
-          program = "${self.packages.${system}.render}/bin/render";
+          program = "${self.packages.${system}.render}/render";
         };
 
         packages.analyse =
@@ -60,16 +60,21 @@
           '';
 
         packages.render =
-          let
-            tmp-script = pkgs.writeTextFile
-              {
-                name = "render";
-                text = (builtins.readFile ./render_html.py);
-              };
-          in
-          pkgs.writeScriptBin "render" ''
-            ${python-shell}/bin/python ${tmp-script}
-          '';
+          pkgs.stdenv.mkDerivation {
+            pname = "render";
+            version = "0.1.0";
+
+            src = ./.;
+
+            buildPhase = ''
+              ls
+            '';
+            installPhase = ''
+              mkdir -p $out/bin
+              cp ./render_html.py $out/render
+              cp -r ./templates $out
+            '';
+          };
 
         packages.extract = pkgs.writeShellScriptBin "extract" ''
           set -euo pipefail

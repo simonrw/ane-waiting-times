@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+	<head>
+	</head>
+	<body>
+		{% for plot_url in plots %}
+		<a href="{{ plot_url }}">
+			<img src="{{ plot_url }}" width="500">
+		</a>
+		{% endfor %}
+	</body>
+</html>
