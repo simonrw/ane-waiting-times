@@ -40,10 +40,7 @@ def parse_time(raw_time: str) -> Tuple[int, MoreOrLess]:
 
 
 def sanitise_location_name(name):
-    print(name)
-    res = name.lower().replace(" ", "_").replace("'", "").replace("'", "").replace(",", "").replace("’", "")
-    print(res)
-    return res
+    return name.lower().replace(" ", "_").replace("'", "").replace("'", "").replace(",", "").replace("’", "")
 
 
 def render_location_graph(location_name, entries, output_dir):
@@ -116,15 +113,15 @@ output_dir = Path.cwd() / "plots"
 output_dir.mkdir(exist_ok=True)
 
 for location, entries in per_location.items():
-    # print(f"{location}:")
+    print(f"{location}:")
     for entry in entries:
         date, num_hours, more_or_less = entry
         if more_or_less == MoreOrLess.More:
             pass
-            # print(f"\t{date}: more than {num_hours} hours")
+            print(f"\t{date}: more than {num_hours} hours")
         elif more_or_less == MoreOrLess.Less:
             pass
-            # print(f"\t{date}: less than {num_hours} hours")
+            print(f"\t{date}: less than {num_hours} hours")
         else:
             raise NotImplementedError
 

@@ -19,6 +19,8 @@ jobs:
         run: nix develop -c sqlite3 ./res.db 'select count(*) from commits'
       - name: Render the graphs
         run: nix run .#analyse
+      - name: Render the HTML
+        run: nix run .#render
       - name: Commit the graphs if changed
         run: |-
           git config user.name "Automated"
@@ -27,4 +29,12 @@ jobs:
           timestamp=$(date -u)
           git commit -m "Latest plots: ${timestamp}" || exit 0
           git push
-
+      - name: Create pages directory
+        run: |-
+          mkdir -p pages
+          cp index.html pages
+          cp -r plots pages/
+      - name: Deploy to github pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: pages
