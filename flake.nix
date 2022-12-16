@@ -21,6 +21,7 @@
           requirements = ''
             numpy
             matplotlib
+            jinja2
             beautifulsoup4
             python-dateutil
             data-science-types
@@ -42,6 +43,10 @@
           type = "app";
           program = "${self.packages.${system}.analyse}/bin/analyse";
         };
+        apps.render = {
+          type = "app";
+          program = "${self.packages.${system}.render}/bin/render";
+        };
 
         packages.analyse =
           let
@@ -54,6 +59,17 @@
             ${python-shell}/bin/python ${tmp-script}
           '';
 
+        packages.render =
+          let
+            tmp-script = pkgs.writeTextFile
+              {
+                name = "render";
+                text = (builtins.readFile ./render_html.py);
+              };
+          in
+          pkgs.writeScriptBin "render" ''
+            ${python-shell}/bin/python ${tmp-script}
+          '';
 
         packages.extract = pkgs.writeShellScriptBin "extract" ''
           set -euo pipefail
