@@ -7,8 +7,7 @@ import glob
 template_path = Path(__file__).parent / "templates"
 assert template_path.is_dir()
 
-plots = glob.iglob("plots/*.png")
-urls = (f"/{plot}" for plot in plots)
+urls = glob.iglob("plots/*.png")
 
 with open("templates/index.html") as infile:
     template = jinja2.Template(infile.read())
