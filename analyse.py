@@ -73,7 +73,7 @@ def render_location_graph(location_name, entries, output_dir):
         avs.append(mean_value)
         stdevs.append(stdev_value)
 
-    axis.bar(x=np.arange(24), height=avs)
+    axis.bar(x=np.arange(24), height=avs, yerr=stdevs)
 
     sanitised_location_name = sanitise_location_name(location_name)
     output_filename = str(output_dir / f"{sanitised_location_name}.png")
